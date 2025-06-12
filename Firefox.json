@@ -1,0 +1,12 @@
+{
+  "addons": {
+    "ReturnYouTubeTrending@example.com": {
+      "updates": [
+        {
+          "version": "1.0",
+          "update_link": "https://github.com/Dr-Sauce/ReturnYouTubeTrending/releases/download/1.0/Return.YouTube.Trending.Firefox.xpi"
+        }
+      ]
+    }
+  }
+}
