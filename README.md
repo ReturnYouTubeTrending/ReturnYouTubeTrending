@@ -8,8 +8,8 @@ An extension that brings back YouTube Trending tab.
 
 |  | Instruction |
 |---|---|
-| **Chrome** | 1. Go to the [releases](https://github.com/Dr-Sauce/ReturnYouTubeTrending/releases/latest) page.  <br>2. Download **Return YouTube Trending Chrome.zip**.  <br>3. Unzip file.  <br>4. Open Chrome. Go to ```chrome://extensions```.   <br>5. Enable **Developer mode**, press **Load unpacked**.  Select the unzipped folder. |
-| **Firefox** | 1. Go to the [releases](https://github.com/Dr-Sauce/ReturnYouTubeTrending/releases/latest) page.  <br>2. Download **Return YouTube Trending Firefox.xpi**.  <br>3. Open Firefox. Go to ```about:addons```. Press **Settings** → **Install Add-on From File...**  <br>4. Select the xpi file. |
+| **Chrome** <br>Arc, Brave, Edge.. | 1. Go to the [releases](https://github.com/Dr-Sauce/ReturnYouTubeTrending/releases/latest) page.  <br>2. Download **RYTT_Chrome.zip**.  <br>3. Unzip file.  <br>4. Open Chrome. Go to ```chrome://extensions```.   <br>5. Enable **Developer mode**, press **Load unpacked**.  Select the unzipped folder. |
+| **Firefox** <br>Zen.. | 1. Go to the [releases](https://github.com/Dr-Sauce/ReturnYouTubeTrending/releases/latest) page.  <br>2. Download **RYTT_Firefox.xpi**.  <br>3. Open Firefox. Go to ```about:addons```. Press **Settings** → **Install Add-on From File...**  <br>4. Select the xpi file. |
 | **iOS** | Extension doesn't work with Orion Browser. <br>Install [YTReExplore](https://github.com/PoomSmart/YTReExplore) from Sileo or inject the tweak into an IPA. |
 | **Android** | Use the Chrome method with Quetta or use the Firefox method with Firefox. |
 
