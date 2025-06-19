@@ -14,12 +14,6 @@ An extension that brings back YouTube Trending tab.
 | **Android** | Use the Chrome method with Quetta or use the Firefox method with Firefox. |
 
 
-# To do
-
-- Add support for more languages.
-- Support patching doodles.
-- Improve UX (Mobile navigation bar· icons, pc menu)
-
 # Credits
 **Perplexity -** Developer, UI designer
 
