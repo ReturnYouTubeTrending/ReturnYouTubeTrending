@@ -14,6 +14,13 @@ An extension that brings back YouTube Trending tab.
 | **Android** | Use the Chrome method with Quetta or use the Firefox method with Firefox. |
 
 
+# TL;DR
+
+YouTube sometimes replaces the YouTube logo with a [doodle](https://raw.githubusercontent.com/Dr-Sauce/ReturnYouTubeTrending/refs/heads/main/Doodle.json) to celebrate events.
+
+Adding support for doodles has caused the extension to break. As a result, I have decided not to support it. If you would like to add support, you can create a pull request.
+
+
 # Credits
 **Perplexity -** Developer, UI designer
 
