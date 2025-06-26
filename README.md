@@ -9,9 +9,11 @@ An extension that brings back YouTube Trending tab.
 |  | Instruction |
 |---|---|
 | **Chrome** <br>Arc, Brave, Edge.. | 1. Download file by pressing [here](https://github.com/Dr-Sauce/ReturnYouTubeTrending/releases/latest/download/RYTT_Chrome.zip) and unzip it.  <br>2. Go to ```Chrome://extensions``` in Chrome.<br>3. Enable **Developer mode** → **Load unpacked**.  Select the unzipped folder. |
-| **Firefox** <br>Zen.. | 1. Click [here](https://github.com/Dr-Sauce/ReturnYouTubeTrending/releases/latest/download/RYTT_Firefox.xpi).<br>2. Press **Add**.
-| **iOS** | Doesn't work with Safari or Orion Browser. <br>Install [YTReExplore](https://github.com/PoomSmart/YTReExplore) from Sileo or inject the tweak into a YouTube IPA. |
-| **Android** | Use the Chrome method with Quetta or use the Firefox method with Firefox. |
+| **Firefox** <br>Zen.. | 1. Click [here](https://github.com/Dr-Sauce/ReturnYouTubeTrending/releases/latest/download/RYTT_Firefox.xpi).<br>2. Press **Add** to install.
+| **iOS** | Install [uYouPlus](https://github.com/qnblackcat/uYouPlus) with [AltStore](https://altstore.io/). |
+| **Android** | Unsupported. |
+|  |  |
+| **Userscript** | Add scripts to an userscript manager.<br>[Return YouTube Trending.js](https://raw.githubusercontent.com/Dr-Sauce/ReturnYouTubeTrending/refs/heads/main/Return%20YouTube%20Trending.js), [YouTube Premium.js](https://raw.githubusercontent.com/Dr-Sauce/ReturnYouTubeTrending/refs/heads/main/YouTube%20Premium.js) |
 
 
 # TL;DR
