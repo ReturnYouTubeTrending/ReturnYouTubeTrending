@@ -9,7 +9,7 @@ An extension that brings back YouTube Trending tab.
 |  | Instruction |
 |---|---|
 | **Chrome** <br>Arc, Brave, Edge.. | Install from the [Chrome Web Store](https://chromewebstore.google.com/detail/return-youtube-trending/apcbkpnopnnjaegbhnmcimmnlmmbolai). |
-| **Firefox** <br>Zen.. | 1. Click [here](https://github.com/Dr-Sauce/ReturnYouTubeTrending/releases/latest/download/RYTT_Firefox.xpi).<br>2. Press **Add** to install.
+| **Firefox** <br>Zen.. | Coming soon to [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/return-youtube-trending/). |
 | **iOS** | Install [uYouPlus](https://github.com/qnblackcat/uYouPlus) with [AltStore](https://altstore.io/). |
 | **Android** | Unsupported. |
 |  |  |
