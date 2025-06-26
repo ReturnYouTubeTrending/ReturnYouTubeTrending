@@ -1,3 +1,12 @@
+// ==UserScript==
+// @name         YouTube Premium
+// @version      1.0
+// @description  Replace YouTube logo with Premium
+// @match        *://*.youtube.com/*
+// @grant        none
+// ==/UserScript==
+// Source by Perplexity
+
 (() => {
   // YouTube Premium SVGs
   const svg = `
