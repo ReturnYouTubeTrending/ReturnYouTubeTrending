@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         YouTube Premium
-// @version      1.0
+// @version      1.1
 // @description  Replace YouTube logo with Premium
 // @match        *://*.youtube.com/*
 // @grant        none
@@ -8,7 +8,47 @@
 // Source by Perplexity
 
 (() => {
-  // YouTube Premium SVGs
+  // --- Hide yoodle/doodle and show regular logo in all logo renderers (main and menu) ---
+  function normalizeYouTubeLogos() {
+    const logoRenderers = document.querySelectorAll('ytd-topbar-logo-renderer');
+    logoRenderers.forEach(logoRenderer => {
+      // Hide the doodle (yoodle) if present and visible
+      const yoodle = logoRenderer.querySelector('ytd-yoodle-renderer:not([hidden])');
+      if (yoodle) yoodle.setAttribute('hidden', '');
+
+      // Show the regular logo if hidden
+      const logoDiv = logoRenderer.querySelector('div[hidden]');
+      if (logoDiv) logoDiv.removeAttribute('hidden');
+
+      // Show the country code if hidden
+      const countryCode = logoRenderer.querySelector('#country-code[hidden]');
+      if (countryCode) countryCode.removeAttribute('hidden');
+
+      // Keep tooltip synced (do not clear aria-label, just update both)
+      function syncLogoTooltip() {
+        const logoLink = logoRenderer.querySelector('a#logo');
+        if (logoLink) {
+          // Prefer aria-label, fallback to title
+          let tooltip = logoLink.getAttribute('aria-label') || logoLink.title || '';
+          if (tooltip && tooltip.includes('YouTube') && !tooltip.includes('Premium')) {
+            const newTooltip = tooltip.replace('YouTube', 'YouTube Premium');
+            logoLink.title = newTooltip;
+            logoLink.setAttribute('aria-label', newTooltip);
+          } else if (tooltip) {
+            // Ensure both are in sync even if already updated
+            logoLink.title = tooltip;
+            logoLink.setAttribute('aria-label', tooltip);
+          }
+        }
+      }
+      syncLogoTooltip();
+      // In case the logo link is rendered dynamically, observe changes
+      const observer = new MutationObserver(syncLogoTooltip);
+      observer.observe(logoRenderer, { childList: true, subtree: true });
+    });
+  }
+
+  // --- YouTube Premium SVG ---
   const svg = `
 <svg xmlns="http://www.w3.org/2000/svg" width="101" height="20" viewBox="0 0 101 20" focusable="false" aria-hidden="true" style="pointer-events:none;display:inherit;width:100%;height:100%;">
   <g>
@@ -52,18 +92,23 @@ c3-icon.mobile-topbar-logo.full-logo svg, c3-icon.yt-spec-more-drawer-view-model
       const icon = container.querySelector('yt-icon#logo-icon');
       if (icon) {
         const svgEl = icon.querySelector('svg');
-        // Only replace if different
         if (svgEl) {
           const newSVG = parseSVG(svg);
-          if (svgEl.isEqualNode(newSVG)) return;
-          svgEl.replaceWith(newSVG);
+          if (!svgEl.isEqualNode(newSVG)) svgEl.replaceWith(newSVG);
         }
       }
     });
-    // Update tooltip (PC)
+    // Update tooltip (PC) dynamically, localization-friendly
     document.querySelectorAll('ytd-topbar-logo-renderer a#logo, ytd-yoodle-renderer a#logo').forEach(a => {
-      if (a.title && a.title.startsWith('YouTube') && !a.title.includes('Premium'))
-        a.title = a.title.replace('YouTube', 'YouTube Premium');
+      let tooltip = a.getAttribute('aria-label') || a.title || '';
+      if (tooltip && tooltip.includes('YouTube') && !tooltip.includes('Premium')) {
+        const newTooltip = tooltip.replace('YouTube', 'YouTube Premium');
+        a.title = newTooltip;
+        a.setAttribute('aria-label', newTooltip);
+      } else if (tooltip) {
+        a.title = tooltip;
+        a.setAttribute('aria-label', tooltip);
+      }
     });
   }
 
@@ -84,6 +129,7 @@ c3-icon.mobile-topbar-logo.full-logo svg, c3-icon.yt-spec-more-drawer-view-model
   }
 
   function run() {
+    normalizeYouTubeLogos();
     if (location.hostname === "www.youtube.com") swapPC();
     else if (location.hostname === "m.youtube.com") swapMobile();
   }
