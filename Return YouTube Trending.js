@@ -1,3 +1,12 @@
+// ==UserScript==
+// @name         Return YouTube Trending
+// @version      1.0
+// @description  Replace Shorts with Trending
+// @match        *://*.youtube.com/*
+// @grant        none
+// ==/UserScript==
+// Source by Perplexity
+
 (function() {
     'use strict';
 
