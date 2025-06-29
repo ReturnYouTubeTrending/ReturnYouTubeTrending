@@ -1,206 +1,381 @@
 // ==UserScript==
 // @name         Return YouTube Trending
-// @version      1.1
+// @version      1.2
 // @description  Replace Shorts with Trending
 // @match        *://*.youtube.com/*
 // @grant        none
 // ==/UserScript==
-// Source by Perplexity
-// Updated by ChatGPT
+// Source by ChatGPT, Perplexity
 
 (function() {
   'use strict';
 
-  // SVG paths for the trending icons (active/inactive)
-  const trendingPath = "M14 2 7.305 5.956C4.637 7.533 3 10.401 3 13.5c0 4.694 3.806 8.5 8.5 8.5s8.5-3.806 8.5-8.5V1l-6 4V2ZM9 15c0-1.226.693-2.346 1.789-2.894L15 10v5c0 1.657-1.343 3-3 3s-3-1.343-3-3Z";
-  const otherPath = "m14 2-1.5.886-5.195 3.07C4.637 7.533 3 10.401 3 13.5c0 4.694 3.806 8.5 8.5 8.5s8.5-3.806 8.5-8.5V1l-1.5 1-3 2L14 5V2ZM8.068 7.248l4.432-2.62v3.175l2.332-1.555L18.5 3.803V13.5c0 3.866-3.134 7-7 7s-7-3.134-7-7c0-2.568 1.357-4.946 3.568-6.252ZM9 15c0-1.226.693-2.346 1.789-2.894L15 10v5c0 1.657-1.343 3-3 3s-3-1.343-3-3Z";
+  // --- Book 1: Load Sidebar Menu Invisibly (Desktop) ---
+  async function loadSidebarMenuInvisibly() {
+    // Wait for the <ytd-mini-guide-renderer.mini-guide-visible> element
+    function waitForMiniGuideVisible(root = document) {
+      return new Promise((resolve) => {
+        const selector = 'ytd-mini-guide-renderer[mini-guide-visible]';
+        const check = () => {
+          const el = root.querySelector(selector);
+          if (el) {
+            resolve(el);
+            return true;
+          }
+          return false;
+        };
+        if (check()) return;
+        const observer = new MutationObserver(() => {
+          if (check()) observer.disconnect();
+        });
+        observer.observe(root, { childList: true, subtree: true });
+      });
+    }
 
-  // Mapping of languages to "Trending" label translations
-  const trendingLabels = {
-    af: "Neigings", am: "በመታየት ላይ ያሉ", ar: "المحتوى الرائج", az: "Trendlərin təhlili", be: "Трэндавыя",
-    bg: "Популярни", bn: "প্রবণতা", bs: "Popularno", ca: "Vídeos del moment", cs: "Populární",
-    da: "Hot lige nu", de: "Angesagt", el: "Τάση", en: "Trending", es: "Tendencias", et: "Popp",
-    eu: "Pil-pilean", fa: "پرطرفدار", fi: "Trendaava", fr: "Tendances", gl: "Tendencias", gu: "વલણમાં",
-    hi: "रुझान में है", hr: "Aktualno", hu: "Felkapott", hy: "Թրենդային", is: "Vinsælt núna", it: "Tendenze",
-    iw: "פופולרי", ja: "急上昇", ka: "პოპულარულები", kk: "Тренд", km: "កំពុង​ពេញ​និយម", kn: "ಟ್ರೆಂಡಿಂಗ್",
-    ko: "인기 급상승", ky: "Жаңы видеолор", lo: "ກຳລັງນິຍົມ", lt: "Populiaru", lv: "Aktuāli", mk: "Во тренд",
-    ml: "ട്രെൻഡിംഗ്", mn: "Тренд", mr: "ट्रेन्डिंग", ms: "Sohor Kini", my: "ခေတ်ရှေ့ပြေး", nb: "På vei opp",
-    ne: "लोकप्रियता बढ्दै", nl: "Trending", pa: "ਰੁਝਾਨ ਵਾਲੇ", pl: "Trendy", pt: "Tendências", "pt-br": "Em alta",
-    ro: "Tendințe", ru: "Популярное", si: "නැඟී එන", sk: "Trendy", sl: "Priljubljeno", sq: "Tendenca",
-    sr: "У тренду", "sr-latn": "U trendu", sv: "Trender", sw: "Zinazovuma", ta: "ட்ரெண்டிங்", te: "ట్రెండింగ్",
-    th: "มาแรง", tl: "Trending", tr: "Trendler", uk: "Популярне", ur: "رجحان ساز", uz: "Ommabop",
-    vi: "Thịnh hành", zh: "时下流行", "zh-cn": "时下流行", "zh-hk": "熱門影片", "zh-tw": "發燒影片", zu: "Okuthrendayo"
-  };
+    const miniGuide = await waitForMiniGuideVisible();
+    if (!miniGuide) return;
 
-  // Get localized "Trending" label from user’s interface language
-  function getTrendingLabel() {
-    let lang =
-      (window.yt?.config_?.HL) ||
-      (window.ytInitialData?.responseContext?.mainAppWebResponseContext?.hl) ||
-      document.documentElement.lang ||
-      navigator.language || 'en';
-    lang = lang.toLowerCase();
-    const base = lang.split('-')[0];
-    return trendingLabels[lang] || trendingLabels[base] || "Trending";
+    function waitForSvgPath(pathD, root = document) {
+      return new Promise((resolve) => {
+        const check = () => {
+          const svgs = root.querySelectorAll('svg path[d]');
+          for (const path of svgs) {
+            if (path.getAttribute('d') === pathD) {
+              resolve(path.closest('div') || path.parentElement);
+              return true;
+            }
+          }
+          return false;
+        };
+        if (check()) return;
+        const observer = new MutationObserver(() => {
+          if (check()) observer.disconnect();
+        });
+        observer.observe(root, { childList: true, subtree: true });
+      });
+    }
+
+    function waitForAnchorWithHrefAndSvg(hrefPart, root = document) {
+      return new Promise((resolve) => {
+        const check = () => {
+          const anchors = root.querySelectorAll(`a[href*="${hrefPart}"]`);
+          for (const a of anchors) {
+            if (a.querySelector('svg')) {
+              resolve(a);
+              return true;
+            }
+          }
+          return false;
+        };
+        if (check()) return;
+        const observer = new MutationObserver(() => {
+          if (check()) observer.disconnect();
+        });
+        observer.observe(root, { childList: true, subtree: true });
+      });
+    }
+
+    const hamburgerPathD = "M21 6H3V5h18v1zm0 5H3v1h18v-1zm0 6H3v1h18v-1z";
+    const hamburgerDiv = await waitForSvgPath(hamburgerPathD);
+    if (!hamburgerDiv) return;
+    hamburgerDiv.click();
+
+    const drawer = document.getElementById('contentContainer');
+    const scrim = document.getElementById('scrim');
+    if (drawer) drawer.style.display = 'none';
+    if (scrim) scrim.style.display = 'none';
+
+    const trendingHrefPart = "/feed/trending";
+    await waitForAnchorWithHrefAndSvg(trendingHrefPart);
+
+    await new Promise(r => setTimeout(r, 1000));
+    hamburgerDiv.click();
+
+    if (drawer) drawer.style.display = '';
+    if (scrim) scrim.style.display = '';
   }
 
-  // Check if a given string is a known localized "Trending" label
-  function isTrendingLabel(txt) {
-    return Object.values(trendingLabels).includes(txt);
-  }
+  // --- Book 2: Replace Shorts with Trending (icon, text, tooltip, url) (Desktop) ---
 
-  // Create a <div> containing an SVG icon (used for the Trending icon)
-  function createTrendingSVG(path) {
-    const svgNS = "http://www.w3.org/2000/svg";
-    const div = document.createElement('div');
-    div.style.width = '100%';
-    div.style.height = '100%';
-    div.style.display = 'block';
-    div.style.fill = 'currentcolor';
+  const SHORTS_SVGS = new Set([
+    "m7.61 15.719.392-.22v-2.24l-.534-.228-.942-.404c-.869-.372-1.4-1.15-1.446-1.974-.047-.823.39-1.642 1.203-2.097h.001L15.13 3.59c1.231-.689 2.785-.27 3.466.833.652 1.058.313 2.452-.879 3.118l-1.327.743-.388.217v2.243l.53.227.942.404c.869.372 1.4 1.15 1.446 1.974.047.823-.39 1.642-1.203 2.097l-.002.001-8.845 4.964-.001.001c-1.231.688-2.784.269-3.465-.834-.652-1.058-.313-2.451.879-3.118l1.327-.742Zm1.993 6.002c-1.905 1.066-4.356.46-5.475-1.355-1.057-1.713-.548-3.89 1.117-5.025a4.14 4.14 0 01.305-.189l1.327-.742-.942-.404a4.055 4.055 0 01-.709-.391c-.963-.666-1.578-1.718-1.644-2.877-.08-1.422.679-2.77 1.968-3.49l8.847-4.966c1.905-1.066 4.356-.46 5.475 1.355 1.057 1.713.548 3.89-1.117 5.025a4.074 4.074 0 01-.305.19l-1.327.742.942.403c.253.109.49.24.709.392.963.666 1.578 1.717 1.644 2.876.08 1.423-.679 2.77-1.968 3.491l-8.847 4.965ZM10 14.567a.25.25 0 00.374.217l4.45-2.567a.25.25 0 000-.433l-4.45-2.567a.25.25 0 00-.374.216v5.134Z",
+    "M18.45 8.851c1.904-1.066 2.541-3.4 1.422-5.214-1.119-1.814-3.57-2.42-5.475-1.355L5.55 7.247c-1.29.722-2.049 2.069-1.968 3.491.081 1.423.989 2.683 2.353 3.268l.942.404-1.327.742c-1.904 1.066-2.541 3.4-1.422 5.214 1.119 1.814 3.57 2.421 5.475 1.355l8.847-4.965c1.29-.722 2.049-2.068 1.968-3.49-.081-1.423-.989-2.684-2.353-3.269l-.942-.403 1.327-.743ZM10 14.567a.25.25 0 00.374.217l4.45-2.567a.25.25 0 000-.433l-4.45-2.567a.25.25 0 00-.374.216v5.134Z"
+  ]);
 
-    const svg = document.createElementNS(svgNS, 'svg');
-    svg.setAttribute('fill', 'currentColor');
-    svg.setAttribute('height', '24');
-    svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('width', '24');
-
-    const pathElem = document.createElementNS(svgNS, 'path');
-    pathElem.setAttribute('clip-rule', 'evenodd');
-    pathElem.setAttribute('d', path);
-    pathElem.setAttribute('fill-rule', 'evenodd');
-
-    svg.appendChild(pathElem);
-    div.appendChild(svg);
-    return div;
-  }
-
-  // Debounce utility for MutationObserver
-  function debounce(func, wait) {
-    let timeout;
-    return function() {
-      const ctx = this, args = arguments;
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(ctx, args), wait);
+  function throttle(fn, delay) {
+    let last = 0;
+    return (...args) => {
+      const now = Date.now();
+      if (now - last > delay) {
+        last = now;
+        fn(...args);
+      }
     };
   }
 
-  // === Mobile YouTube: m.youtube.com ===
-  if (location.hostname === 'm.youtube.com') {
-    // Replace Shorts icon and label with Trending
-    function patchShortsTab() {
-      const trending = getTrendingLabel();
-      document.querySelectorAll('ytm-pivot-bar-item-renderer .pivot-shorts svg path').forEach(
-        p => p.setAttribute('d', location.pathname === '/feed/trending' ? trendingPath : otherPath)
-      );
-      document.querySelectorAll('.pivot-bar-item-title.pivot-shorts span').forEach(
-        s => { if (s.textContent.trim() === 'Shorts') s.textContent = trending; }
-      );
-    }
-
-    // Intercept Shorts tab click to redirect to /feed/trending
-    document.addEventListener('click', e => {
-      const t = e.target.closest('.pivot-bar-item-tab.pivot-shorts');
-      if (t) { e.preventDefault(); location.href = '/feed/trending'; }
-    }, true);
-
-    // Watch DOM for changes and patch as needed
-    const tryPatch = debounce(() => {
-      if (document.querySelector('.pivot-shorts')) patchShortsTab();
-    }, 100);
-
-    new MutationObserver(tryPatch).observe(document.documentElement, {childList: true, subtree: true});
-    document.addEventListener('DOMContentLoaded', tryPatch);
-    window.addEventListener('yt-page-data-updated', tryPatch);
-  }
-
-  // === Desktop YouTube: www.youtube.com ===
-  if (location.hostname === 'www.youtube.com') {
-    // Replace Shorts in the mini guide sidebar with Trending
-    function swapShortsGuide() {
-      const b = document.querySelector('ytd-mini-guide-entry-renderer[aria-label="Shorts"]');
-      if (!b) return;
-      const a = b.querySelector('a#endpoint');
-      if (!a) return;
-
-      // Remove Shorts icon
-      b.querySelectorAll('yt-icon#icon, .yt-icon-shape, svg, .yt-trending-icon').forEach(e => e.remove());
-
-      // Insert new Trending icon
-      const s = document.createElement('span');
-      s.className = 'yt-trending-icon';
-      s.appendChild(createTrendingSVG(location.pathname.startsWith('/feed/trending') ? trendingPath : otherPath));
-      a.insertBefore(s, a.firstChild);
-
-      // Replace label
-      const t = b.querySelector('.title');
-      if (t) t.textContent = getTrendingLabel();
-    }
-
-    // Make Shorts link redirect to Trending
-    function redirectShortsGuide() {
-      const e = document.querySelector('ytd-mini-guide-entry-renderer[aria-label="Shorts"] a#endpoint');
-      if (e && !e.dataset.r) {
-        e.onclick = t => { t.preventDefault(); t.stopPropagation(); location.href = '/feed/trending'; };
-        e.dataset.r = 1;
-      }
-    }
-
-    // Update tooltip text for Shorts (now Trending)
-    function updateShortsTooltip() {
-      const label = getTrendingLabel();
-      const a = document.querySelector('ytd-mini-guide-entry-renderer a#endpoint[title="Shorts"]');
-      if (a) {
-        a.title = label;
-        const tip = a.querySelector('tp-yt-paper-tooltip #tooltip');
-        if (tip) tip.textContent = label;
-      }
-    }
-
-    // Swap menu entries: Shorts <--> Trending
-    function swapMenuEntries() {
-      if (document.querySelector('ytd-guide-entry-renderer[data-swapped="1"]')) return;
-      let shorts, trending;
-      document.querySelectorAll('ytd-guide-entry-renderer').forEach(e => {
-        const txt = e.querySelector('.title')?.textContent.trim();
-        if (txt === "Shorts") shorts = e;
-        if (isTrendingLabel(txt)) trending = e;
+  function getTrendingEntry() {
+    return new Promise(resolve => {
+      const found = [...document.querySelectorAll('ytd-guide-entry-renderer a#endpoint')].find(a => a.href.includes('/feed/trending'));
+      if (found) return resolve(found);
+      const o = new MutationObserver((muts, obs) => {
+        for (const mu of muts) for (const n of mu.addedNodes) {
+          if (n.nodeType !== 1) continue;
+          if (n.matches && n.matches('a#endpoint[href*="/feed/trending"]')) return obs.disconnect() || resolve(n);
+          const f = n.querySelector && n.querySelector('a#endpoint[href*="/feed/trending"]');
+          if (f) return obs.disconnect() || resolve(f);
+        }
       });
-      if (!shorts || !trending) return;
-
-      const sParent = shorts.parentNode, tParent = trending.parentNode;
-      const sNext = shorts.nextSibling, tNext = trending.nextSibling;
-      sParent.removeChild(shorts);
-      tParent.removeChild(trending);
-      sParent.insertBefore(trending, sNext);
-      tParent.insertBefore(shorts, tNext);
-
-      trending.dataset.swapped = '1';
-      shorts.dataset.swapped = '1';
-    }
-
-    // Run all patches for desktop view
-    function applyDesktopPatches() {
-      swapShortsGuide();
-      redirectShortsGuide();
-      updateShortsTooltip();
-      swapMenuEntries();
-    }
-
-    // Watch for YouTube navigation or UI reloads
-    function observeDesktop() {
-      [document.querySelector('ytd-mini-guide-renderer'), document.querySelector('ytd-guide-renderer'), document.body]
-        .filter(Boolean)
-        .forEach(target => new MutationObserver(debounce(applyDesktopPatches, 100)).observe(target, {childList: true, subtree: true}));
-    }
-
-    // Initial run + event listeners
-    ['yt-navigate-finish', 'popstate'].forEach(e => window.addEventListener(e, () => {
-      applyDesktopPatches();
-      observeDesktop();
-    }));
-    document.addEventListener('DOMContentLoaded', () => {
-      applyDesktopPatches();
-      observeDesktop();
+      o.observe(document.body, { childList: true, subtree: true });
     });
   }
+
+  function findShortsMiniGuide() {
+    const r = document.querySelector('ytd-mini-guide-entry-renderer[data-replaced="true"] a#endpoint');
+    if (r) return r;
+    return [...document.querySelectorAll('ytd-mini-guide-entry-renderer a#endpoint')].find(a => {
+      const p = a.querySelector('svg path');
+      return p && SHORTS_SVGS.has(p.getAttribute('d'));
+    }) || null;
+  }
+
+  function nav(url) {
+    try {
+      if (window.yt?.router?.navigate) return window.yt.router.navigate(url), true;
+      if (window.yt?.player?.Application?.router?.navigate) return window.yt.player.Application.router.navigate(url), true;
+    } catch {}
+    return false;
+  }
+
+  async function replaceShortsWithTrending() {
+    const t = await getTrendingEntry(), s = findShortsMiniGuide();
+    if (!t || !s) return;
+    const tSvg = t.querySelector('svg'), tText = t.querySelector('yt-formatted-string');
+    if (!tSvg || !tText) return;
+    const i = s.querySelector('yt-icon#icon span.yt-icon-shape div'), ttl = s.querySelector('span.title');
+    if (!i || !ttl) return;
+    while (i.firstChild) i.removeChild(i.firstChild);
+    i.appendChild(tSvg.cloneNode(true));
+    ttl.textContent = tText.textContent;
+    const href = t.getAttribute('href'), title = t.getAttribute('title') || tText.textContent;
+    s.setAttribute('href', href);
+    s.setAttribute('title', title);
+    s.onclick = e => { e.preventDefault(); if (!nav(href)) window.location.href = href; };
+    const c = s.closest('ytd-mini-guide-entry-renderer');
+    if (c && !c.hasAttribute('data-replaced')) c.setAttribute('data-replaced', 'true');
+  }
+
+  // --- Book 3: Swap Shorts and Trending in Main Menu (Desktop) ---
+
+  function isShortsEntry(entry) {
+    const path = entry.querySelector('a#endpoint svg path');
+    return path && SHORTS_SVGS.has(path.getAttribute('d'));
+  }
+
+  function getTrendingGuideEntry() {
+    return [...document.querySelectorAll('ytd-guide-entry-renderer')].find(e => {
+      const a = e.querySelector('a#endpoint');
+      return a && a.href.includes('/feed/trending');
+    });
+  }
+
+  function swapShortsTrending() {
+    if (document.querySelector('ytd-guide-entry-renderer[data-swapped="true"]')) return;
+    const shorts = [...document.querySelectorAll('ytd-guide-entry-renderer')].find(isShortsEntry);
+    const trending = getTrendingGuideEntry();
+    if (!shorts || !trending) return;
+    const sParent = shorts.parentNode, tParent = trending.parentNode;
+    const sNext = shorts.nextSibling, tNext = trending.nextSibling;
+    sParent.removeChild(shorts);
+    tParent.removeChild(trending);
+    sParent.insertBefore(trending, sNext);
+    tParent.insertBefore(shorts, tNext);
+    shorts.dataset.swapped = "true";
+    trending.dataset.swapped = "true";
+  }
+
+  // --- Book 4: YT Menu+Trending Compact (Mobile/Universal) ---
+  function ytMenuTrendingCompact() {
+    // CSS for mobile drawer hiding
+    const css = document.createElement('style');
+    css.id = 'h';
+    css.textContent = `div.drawer-layout.opened{transform:translateX(-100%)!important;transition:none!important;visibility:hidden!important;pointer-events:none!important;display:block!important;}ytw-scrim.ytWebScrimHost{display:none!important;pointer-events:none!important;transition:none!important;animation:none!important;}div.drawer-layout.opened,div.drawer-layout.opened *,ytw-scrim.ytWebScrimHost,ytw-scrim.ytWebScrimHost *{transition:none!important;animation:none!important;}`;
+    document.head.appendChild(css);
+
+    async function menu() {
+      const save = e => { if (!e.dataset.os) e.dataset.os = e.style.cssText || '' };
+      const restore = () => {
+        let d = document.querySelector('div.drawer-layout.opened'),
+          s = document.querySelector('ytw-scrim.ytWebScrimHost'),
+          c = document.getElementById('h');
+        if (d && d.dataset.os) d.style.cssText = d.dataset.os;
+        if (s && s.dataset.os) s.style.cssText = s.dataset.os;
+        c && c.remove();
+      };
+      const patch = () => {
+        let d = document.querySelector('div.drawer-layout.opened'),
+          s = document.querySelector('ytw-scrim.ytWebScrimHost');
+        if (d) { save(d); d.style.setProperty('transform', 'translateX(-100%)', 'important'); d.style.setProperty('transition', 'none', 'important'); d.style.setProperty('visibility', 'hidden', 'important'); d.style.setProperty('pointer-events', 'none', 'important'); d.style.setProperty('display', 'block', 'important') }
+        if (s) { save(s); s.style.setProperty('display', 'none', 'important'); s.style.setProperty('pointer-events', 'none', 'important'); s.style.setProperty('transition', 'none', 'important'); s.style.setProperty('animation', 'none', 'important') }
+      };
+      const findBtn = () => document.querySelector('div.search-bar-entry-point-button.search-bar-entry-point-more-drawer-button[role=button]') || [...document.querySelectorAll('div.chip-container')].find(d => d.querySelector('svg')) || null;
+      const waitClick = () => new Promise(r => {
+        let b = findBtn();
+        if (b) { b.click(); r(b); return; }
+        const o = new MutationObserver(() => {
+          let b = findBtn();
+          if (b) { o.disconnect(); b.click(); r(b); }
+        });
+        o.observe(document.body, { childList: 1, subtree: 1 });
+      });
+      const waitTrend = () => new Promise(r => {
+        const c = () => {
+          for (const a of document.querySelectorAll('a[href*="/feed/trending"]'))
+            if (a.querySelector('svg')) return a;
+          return null;
+        };
+        let f = c();
+        if (f) { r(f); return; }
+        const o = new MutationObserver(() => {
+          let f = c();
+          if (f) { o.disconnect(); r(f); }
+        });
+        o.observe(document.body, { childList: 1, subtree: 1 });
+      });
+      const close = () => {
+        const b = document.querySelector('ytw-scrim button.ytWebScrimHiddenButton');
+        if (b) b.click();
+        else restore();
+      };
+      const o = new MutationObserver(() => { if (document.querySelector('div.drawer-layout.opened')) patch() });
+      o.observe(document.body, { childList: 1, subtree: 1 });
+      await waitClick();
+      await waitTrend();
+      close();
+      setTimeout(() => {
+        o.disconnect();
+        restore();
+      }, 300);
+    }
+
+    async function mobileSwap() {
+      const K = 'yt_trending_cache';
+      let r = 0, p = location.pathname, lO;
+      const save = (d, l, h) => d && l && h && localStorage.setItem(K, JSON.stringify({ d, l, h }));
+      const load = () => {
+        try { return JSON.parse(localStorage.getItem(K)) || null } catch { return null }
+      };
+      const df = (s, r = document) => r.querySelector(s) || [...r.querySelectorAll('*')].reduce((a, n) => a || (n.shadowRoot && df(s, n.shadowRoot)), null);
+      const wt = () => new Promise(r => {
+        const c = () => {
+          const a = df('a[href*="/feed/trending"]');
+          if (!a) return 0;
+          const p = a.querySelector('svg path'), t = a.querySelector('.yt-spec-navigation-item-shape__navigation-item-label span');
+          if (!p || !t) return 0;
+          const d = p.getAttribute('d'), l = t.textContent.trim(), h = a.href;
+          if (d && l && h.includes('/feed/trending')) { save(d, l, h); mo.disconnect(); r({ d, l, h }); return 1; }
+          return 0;
+        };
+        if (c()) return;
+        const mo = new MutationObserver(c);
+        mo.observe(document.body, { childList: 1, subtree: 1 });
+      });
+      const sL = (b, t) => {
+        const s = b.querySelector('div.pivot-bar-item-title span');
+        if (!s) return 0;
+        s.textContent = t;
+        lO?.disconnect();
+        lO = new MutationObserver(() => { if (s.textContent !== t) s.textContent = t });
+        lO.observe(s, { characterData: 1, childList: 1, subtree: 1 });
+        return 1;
+      };
+      const mkS = d => {
+        const ns = 'http://www.w3.org/2000/svg',
+          s = document.createElementNS(ns, 'svg'),
+          g = document.createElementNS(ns, 'g'),
+          p = document.createElementNS(ns, 'path');
+        s.setAttribute('viewBox', '0 0 24 24');
+        s.setAttribute('style', 'pointer-events:none;display:block;width:100%;height:100%');
+        p.setAttribute('d', d);
+        g.appendChild(p);
+        s.appendChild(g);
+        return s;
+      };
+      const mkI = () => {
+        const ns = 'http://www.w3.org/2000/svg',
+          sp = document.createElement('span'),
+          d = document.createElement('div'),
+          s = document.createElementNS(ns, 'svg'),
+          p = document.createElementNS(ns, 'path');
+        sp.className = 'yt-icon-shape style-scope yt-icon yt-spec-icon-shape';
+        d.style.cssText = 'width:100%;height:100%;display:block;fill:currentcolor';
+        s.setAttribute('fill', 'currentColor');
+        s.setAttribute('height', '24');
+        s.setAttribute('width', '24');
+        s.setAttribute('viewBox', '0 0 24 24');
+        s.setAttribute('style', 'pointer-events:none;display:inherit;width:100%;height:100%');
+        p.setAttribute('clip-rule', 'evenodd');
+        p.setAttribute('fill-rule', 'evenodd');
+        p.setAttribute('d', 'M14 2 7.305 5.956C4.637 7.533 3 10.401 3 13.5c0 4.694 3.806 8.5 8.5 8.5s8.5-3.806 8.5-8.5V1l-6 4V2ZM9 15c0-1.226.693-2.346 1.789-2.894L15 10v5c0 1.657-1.343 3-3 3s-3-1.343-3-3Z');
+        s.appendChild(p);
+        d.appendChild(s);
+        sp.appendChild(d);
+        return sp;
+      };
+      async function rep() {
+        const b = document.querySelector('div.pivot-bar-item-tab.pivot-shorts[role=tab]');
+        if (!b) return 0;
+        const i = b.querySelector('c3-icon');
+        if (!i) return 0;
+        if (location.pathname === '/feed/trending') {
+          i.replaceChildren(mkI());
+          b.onclick = () => location.href = '/feed/trending';
+          const l = load()?.l || 'Trending';
+          if (!sL(b, l)) {
+            const mo = new MutationObserver((_, o) => sL(b, l) && o.disconnect());
+            mo.observe(b, { childList: 1, subtree: 1 });
+          }
+          r = 1; return 1;
+        }
+        let d = null;
+        if (location.pathname === '/') d = await wt();
+        if (!d) d = load();
+        if (!d) return 0;
+        i.replaceChildren(mkS(d.d));
+        b.onclick = () => location.href = d.h;
+        if (!sL(b, d.l)) {
+          const mo = new MutationObserver((_, o) => sL(b, d.l) && o.disconnect());
+          mo.observe(b, { childList: 1, subtree: 1 });
+        }
+        r = 1; return 1;
+      }
+      async function t() {
+        if (location.pathname !== p) r = 0, p = location.pathname;
+        if (!r) await rep();
+      }
+      await t();
+      new MutationObserver(t).observe(document, { childList: 1, subtree: 1 });
+    }
+
+    if (document.readyState === 'loading') {
+      window.addEventListener('DOMContentLoaded', () => { menu(); mobileSwap() });
+    } else {
+      menu(); mobileSwap();
+    }
+  }
+
+  // --- Pack the bag: Run all books together ---
+
+  // Desktop logic
+  if (!/m\.youtube\.com/.test(location.hostname)) {
+    loadSidebarMenuInvisibly();
+    const throttledReplace = throttle(replaceShortsWithTrending, 1000);
+    new MutationObserver(throttledReplace).observe(document.body, { childList: true, subtree: true });
+    replaceShortsWithTrending();
+    swapShortsTrending();
+    new MutationObserver(() => swapShortsTrending()).observe(document.body, { childList: true, subtree: true });
+  }
+
+  // Mobile/Universal logic
+  ytMenuTrendingCompact();
+
 })();
