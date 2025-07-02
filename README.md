@@ -1,5 +1,7 @@
 # Return YouTube Trending
-An extension that brings back YouTube Trending tab.
+- Replace Shorts tab with Trending.
+- Replace YouTube logo with Premium.
+- Disables doodles.
 
 ![0001](https://github.com/user-attachments/assets/9502d734-2a7c-45f4-a218-66fbfaf6fd02)
 
