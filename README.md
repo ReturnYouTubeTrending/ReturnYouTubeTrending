@@ -1,6 +1,6 @@
 # Return YouTube Trending
 - Replace Shorts tab with Trending.
-- Replace YouTube logo with Premium.
+- Enable Premium logo.
 - Disables doodles.
 
 ![0001](https://github.com/user-attachments/assets/9502d734-2a7c-45f4-a218-66fbfaf6fd02)
