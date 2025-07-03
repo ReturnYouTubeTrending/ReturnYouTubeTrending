@@ -7,17 +7,13 @@
 
 
 # Install
-
-|  | Instruction |
-|---|---|
-| **Chrome** <br>Arc, Brave, Edge.. | Install from the [Chrome Web Store](https://chromewebstore.google.com/detail/return-youtube-trending/apcbkpnopnnjaegbhnmcimmnlmmbolai). |
-| **Firefox** <br>Zen.. | Install from [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/return-youtube-trending/). |
-| **iOS** | Install [uYouPlus](https://github.com/qnblackcat/uYouPlus) with [AltStore](https://altstore.io/). (Or [YTReExplore](https://github.com/PoomSmart/YTReExplore) from Sileo) |
-| **Android** | Unsupported. |
-|  |  |
-| **Userscript** | Add scripts to an userscript manager.<br>[Return YouTube Trending.js](https://raw.githubusercontent.com/Dr-Sauce/ReturnYouTubeTrending/refs/heads/main/Return%20YouTube%20Trending.js), [YouTube Premium.js](https://raw.githubusercontent.com/Dr-Sauce/ReturnYouTubeTrending/refs/heads/main/YouTube%20Premium.js) |
+|  |    App | Website |
+|---|---|---|
+| PC | - | **Chrome:** [Chrome Web Store](https://chromewebstore.google.com/detail/return-youtube-trending/apcbkpnopnnjaegbhnmcimmnlmmbolai)<br>**Firefox:** [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/return-youtube-trending/) |
+| iOS | Install [uYouPlus](https://github.com/qnblackcat/uYouPlus) with [AltStore](https://altstore.io/).<br>(Or [YTReExplore](https://github.com/PoomSmart/YTReExplore) from Sileo) | **Safari:** Install [Return YouTube Trending.js](https://raw.githubusercontent.com/Dr-Sauce/ReturnYouTubeTrending/refs/heads/main/Return%20YouTube%20Trending.js), [YouTube Premium.js](https://raw.githubusercontent.com/Dr-Sauce/ReturnYouTubeTrending/refs/heads/main/YouTube%20Premium.js) via [Userscripts](https://apps.apple.com/app/userscripts/id1463298887)<br>**Orion Browser:** Unsupported |
+| Android | Unsupported (YouTube ReVanced doesn't support changing Shorts with Trending tab) | **Quetta:** [Chrome Web Store](https://chromewebstore.google.com/detail/return-youtube-trending/apcbkpnopnnjaegbhnmcimmnlmmbolai)<br>**Firefox:** [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/return-youtube-trending/) |
 
 # Credits
-**Perplexity -** Developer, UI designer
+**ChatGPT -** Developer, Icon designer
 
-**ChatGPT -** Co-developer, Icon designer
+**Perplexity -** Developer, UI designer
