@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Return YouTube Trending
-// @version      1.4
+// @version      1.3
 // @description  Replace Shorts with Trending
 // @match        *://*.youtube.com/*
 // @grant        none
@@ -27,23 +27,6 @@
         });
         mo.observe(root, { childList: true, subtree: true });
       });
-
-      // Utility: Replace transition duration everywhere
-      function setTransitionDuration(from, to) {
-        // Update <style> elements
-        document.querySelectorAll('style').forEach(function(node) {
-          node.textContent = node.textContent.replace(
-            new RegExp(`transition-duration:\\s*${from}`, 'g'),
-            `transition-duration: ${to}`
-          );
-        });
-        // Update inline styles
-        document.querySelectorAll('[style]').forEach(function(el) {
-          if (el.style.transitionDuration === from) {
-            el.style.transitionDuration = to;
-          }
-        });
-      }
 
       // Wait for mini-guide to be visible
       const shouldRun = async () => {
@@ -81,9 +64,6 @@
         });
 
         await waitFor('ytd-mini-guide-renderer[mini-guide-visible]');
-
-        // Disable transitions before opening menu
-        setTransitionDuration('200ms', '0ms');
 
         const hamburgerPathD = "M21 6H3V5h18v1zm0 5H3v1h18v-1zm0 6H3v1h18v-1z";
         const path = await waitFor(`svg path[d="${hamburgerPathD}"]`);
@@ -137,13 +117,6 @@
         await openMenu();
         await hideGuideDrawer();
         fixGuideAttribute();
-
-        // --- FIXED: Restore transitions ONLY after browser has repainted ---
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            setTransitionDuration('0ms', '200ms');
-          });
-        });
       }
 
       // --- Replace Shorts icon/text with Trending in mini-guide ---
