@@ -14,7 +14,7 @@
 | **Android** | Unsupported (YouTube ReVanced doesn't support changing Shorts with Trending tab) | **Quetta:** [Chrome Web Store](https://chromewebstore.google.com/detail/return-youtube-trending/apcbkpnopnnjaegbhnmcimmnlmmbolai)<br>**Firefox:** [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/return-youtube-trending/) |
 
 # Logic
-|  | `Return YouTube Trending` Script | `YouTube Premium` Script |
+|  | `Return YouTube Trending.js` | `YouTube Premium.js` |
 |---|---|---|
 | **Description** | Replaces Shorts elements with Trending. | Replace YouTube logo with Premium. Unlike other scripts/extensions it replaces each YouTube SVG with Premium SVGs. |
 | **Language** | All languages (The extension itself only supports English and Korean) |
