@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Return YouTube Trending
-// @version      1.5
+// @version      1.6
 // @description  Replace Shorts with Trending
 // @match        *://*.youtube.com/*
 // @grant        none
@@ -10,10 +10,10 @@
 (function() {
   'use strict';
 
-  // --- SCRIPT 1: Only for www.youtube.com ---
+  // --- MAIN SCRIPT: Applies only to www.youtube.com ---
   if (location.hostname === 'www.youtube.com') {
 
-    // Utility: Wait for a selector to appear in the DOM
+    // Utility: Wait for a DOM element matching selector to appear
     function waitFor(selector, root = document) {
       return new Promise(resolve => {
         const el = root.querySelector(selector);
@@ -29,7 +29,7 @@
       });
     }
 
-    // Utility: Wait for ytd-app and a specific attribute
+    // Utility: Wait for ytd-app to have either mini-guide or persistent-guide attribute
     async function waitForYtdAppAttr() {
       const app = await waitFor('ytd-app');
       return new Promise(resolve => {
@@ -50,11 +50,11 @@
       });
     }
 
-    // --- SCRIPT 1: mini-guide-visible (not persistent) ---
+    // --- LOGIC FOR MINI-GUIDE MODE ---
     async function scriptMiniGuide(app) {
-      // Sidebar toggle, Shorts → Trending replace, and swap Shorts/Trending mini-guide entries
+      // --- Sidebar: Open, swap Shorts/Trending, and handle transitions ---
 
-      // Wait for mini-guide to be visible
+      // Wait for mini-guide to be visible before proceeding
       const shouldRun = async () => {
         await waitFor('ytd-app');
         const app = document.querySelector('ytd-app');
@@ -71,20 +71,51 @@
         });
       };
 
-      // Watch for the drawer to appear, then disable animation once
-      const observer = new MutationObserver((_, obs) => {
-        const drawer = document.querySelector('tp-yt-app-drawer#guide');
-        if (drawer) {
-          // Set transitionDuration to '0ms' for all nodes with '200ms'
-          drawer.querySelectorAll('[style*="200ms"]').forEach(node => {
-            node.style.transitionDuration = '0ms';
-          });
-          obs.disconnect();
-        }
-      });
-      observer.observe(document.documentElement, { childList: true, subtree: true });
+      // Instantly remove 200ms transitions from drawer and its children
+      const zeroDrawerTransition = el => {
+        el.querySelectorAll('[style*="200ms"]').forEach(node => {
+          node.style.transitionDuration = '0ms';
+        });
+      };
 
-      // Open sidebar menu when mini-guide is visible
+      // Wait for drawer and remove transitions once
+      (async () => {
+        const waitFor = selector => new Promise(resolve => {
+          const found = document.querySelector(selector);
+          if (found) return resolve(found);
+          const observer = new MutationObserver(() => {
+            const el = document.querySelector(selector);
+            if (el) {
+              observer.disconnect();
+              resolve(el);
+            }
+          });
+          observer.observe(document.documentElement, {childList: true, subtree: true});
+        });
+        const drawer = await waitFor('tp-yt-app-drawer#guide');
+        if (drawer) zeroDrawerTransition(drawer);
+      })();
+
+      // Prevent the persistent guide attribute from being set
+      const ytdApp = document.querySelector('ytd-app');
+      if (ytdApp) {
+        // Remove if already present
+        ytdApp.removeAttribute('guide-persistent-and-visible');
+        // Observe and remove if added later
+        window._gpvObserver = new MutationObserver(mutations => {
+          for (const mutation of mutations) {
+            if (
+              mutation.type === 'attributes' &&
+              mutation.attributeName === 'guide-persistent-and-visible'
+            ) {
+              ytdApp.removeAttribute('guide-persistent-and-visible');
+            }
+          }
+        });
+        window._gpvObserver.observe(ytdApp, { attributes: true });
+      }
+
+      // Open the sidebar menu (hamburger)
       const openMenu = async () => {
         await new Promise(resolve => {
           const check = () => {
@@ -110,16 +141,7 @@
         clickable.click();
       };
 
-      // Remove persistent guide attribute if present (edit once, no observer)
-      const removeGuidePersistent = () => {
-        const app = document.querySelector('ytd-app[guide-persistent-and-visible]');
-        if (app) {
-          app.removeAttribute('guide-persistent-and-visible');
-          app.setAttribute('mini-guide-visible', '');
-        }
-      };
-
-      // Hide guide drawer, then show it again after clicking the guide button
+      // Hide the guide drawer after opening
       const hideGuideDrawer = async () => {
         const guideDrawer = await waitFor('tp-yt-app-drawer#guide');
         guideDrawer.style.transform = 'translateX(-100%)';
@@ -138,27 +160,34 @@
         }
       };
 
-      // Fix guide attribute to ensure mini-guide is visible (edit once, no observer)
-      const fixGuideAttribute = () => {
-        const app = document.querySelector('ytd-app[guide-persistent-and-visible]');
-        if (app) {
-          app.removeAttribute('guide-persistent-and-visible');
-          app.setAttribute('mini-guide-visible', '');
-        }
-      };
-
+      // Run open/hide logic if mini-guide is active
       if (await shouldRun()) {
-        removeGuidePersistent();
         await openMenu();
         await hideGuideDrawer();
-        fixGuideAttribute();
       }
 
-      // --- Replace Shorts icon/text with Trending in mini-guide ---
-      const S = new Set([
-        "m7.61 15.719.392-.22v-2.24l-.534-.228-.942-.404c-.869-.372-1.4-1.15-1.446-1.974-.047-.823.39-1.642 1.203-2.097h.001L15.13 3.59c1.231-.689 2.785-.27 3.466.833.652 1.058.313 2.452-.879 3.118l-1.327.743-.388.217v2.243l.53.227.942.404c.869.372 1.4 1.15 1.446 1.974.047.823-.39 1.642-1.203 2.097l-.002.001-8.845 4.964-.001.001c-1.231.688-2.784.269-3.465-.834-.652-1.058-.313-2.451.879-3.118l1.327-.742Zm1.993 6.002c-1.905 1.066-4.356.46-5.475-1.355-1.057-1.713-.548-3.89 1.117-5.025a4.14 4.14 0 01.305-.189l1.327-.742-.942-.404a4.055 4.055 0 01-.709-.391c-.963-.666-1.578-1.718-1.644-2.877-.08-1.422.679-2.77 1.968-3.49l8.847-4.966c1.905-1.066 4.356-.46 5.475 1.355 1.057 1.713.548 3.89-1.117 5.025a4.074 4.074 0 01-.305.19l-1.327.742.942.403c.253.109.49.24.709.392.963.666 1.578 1.717 1.644 2.876.08 1.423-.679 2.77-1.968 3.491l-8.847 4.965ZM10 14.567a.25.25 0 00.374.217l4.45-2.567a.25.25 0 000-.433l-4.45-2.567a.25.25 0 00-.374.216v5.134Z",
-        "M18.45 8.851c1.904-1.066 2.541-3.4 1.422-5.214-1.119-1.814-3.57-2.42-5.475-1.355L5.55 7.247c-1.29.722-2.049 2.069-1.968 3.491.081 1.423.989 2.683 2.353 3.268l.942.404-1.327.742c-1.904 1.066-2.541 3.4-1.422 5.214 1.119 1.814 3.57 2.421 5.475 1.355l8.847-4.965c1.29-.722 2.049-2.068 1.968-3.49-.081-1.423-.989-2.684-2.353-3.269l-.942-.403 1.327-.743ZM10 14.567a.25.25 0 00.374.217l4.45-2.567a.25.25 0 000-.433l-4.45-2.567a.25.25 0 00-.374.216v5.134Z"
-      ]);
+      // Restore drawer transitions to original duration
+      async function restoreDrawerTransition() {
+        const drawer = await waitFor('tp-yt-app-drawer#guide');
+        if (!drawer) return;
+        drawer.querySelectorAll('[style*="0ms"]').forEach(node => {
+          // Use computed style or fallback to 200ms
+          const computed = getComputedStyle(node).transitionDuration;
+          node.style.transitionDuration = (computed && computed !== "0ms") ? computed : "200ms";
+        });
+      }
+
+      if (await shouldRun()) {
+        await restoreDrawerTransition();
+      }
+
+      // Stop blocking persistent guide attribute
+      if (window._gpvObserver) {
+        window._gpvObserver.disconnect();
+        window._gpvObserver = null;
+      }
+
+      // Replace Shorts with Trending in the mini-guide
       const throttle = (f, d) => {
         let last = 0;
         return (...args) => {
@@ -223,74 +252,66 @@
       new MutationObserver(throttledReplace).observe(document.body, { childList: true, subtree: true });
       rep();
 
-      // --- Swap Shorts and Trending in main guide ---
-      const SVG_PATHS = S;
-      const isShorts = el => {
-        const d = el.querySelector('a#endpoint svg path')?.getAttribute('d');
-        return SVG_PATHS.has(d);
-      };
+      // Swap Shorts and Trending entries in the main menu
+      const S = new Set([
+        "m7.61 15.719.392-.22v-2.24l-.534-.228-.942-.404c-.869-.372-1.4-1.15-1.446-1.974-.047-.823.39-1.642 1.203-2.097h.001L15.13 3.59c1.231-.689 2.785-.27 3.466.833.652 1.058.313 2.452-.879 3.118l-1.327.743-.388.217v2.243l.53.227.942.404c.869.372 1.4 1.15 1.446 1.974.047.823-.39 1.642-1.203 2.097l-.002.001-8.845 4.964-.001.001c-1.231.688-2.784.269-3.465-.834-.652-1.058-.313-2.451.879-3.118l1.327-.742Zm1.993 6.002c-1.905 1.066-4.356.46-5.475-1.355-1.057-1.713-.548-3.89 1.117-5.025a4.14 4.14 0 01.305-.189l1.327-.742-.942-.404a4.055 4.055 0 01-.709-.391c-.963-.666-1.578-1.718-1.644-2.877-.08-1.422.679-2.77 1.968-3.49l8.847-4.966c1.905-1.066 4.356-.46 5.475 1.355 1.057 1.713.548 3.89-1.117 5.025a4.074 4.074 0 01-.305.19l-1.327.742.942.403c.253.109.49.24.709.392.963.666 1.578 1.717 1.644 2.876.08 1.423-.679 2.77-1.968 3.491l-8.847 4.965ZM10 14.567a.25.25 0 00.374.217l4.45-2.567a.25.25 0 000-.433l-4.45-2.567a.25.25 0 00-.374.216v5.134Z",
+        "M18.45 8.851c1.904-1.066 2.541-3.4 1.422-5.214-1.119-1.814-3.57-2.42-5.475-1.355L5.55 7.247c-1.29.722-2.049 2.069-1.968 3.491.081 1.423.989 2.683 2.353 3.268l.942.404-1.327.742c-1.904 1.066-2.541 3.4-1.422 5.214 1.119 1.814 3.57 2.421 5.475 1.355l8.847-4.965c1.29-.722 2.049-2.068 1.968-3.49-.081-1.423-.989-2.684-2.353-3.269l-.942-.403 1.327-.743ZM10 14.567a.25.25 0 00.374.217l4.45-2.567a.25.25 0 000-.433l-4.45-2.567a.25.25 0 00-.374.216v5.134Z"
+      ]);
 
-      const getTrendingEntry = () => [...document.querySelectorAll('ytd-guide-entry-renderer')].find(e =>
-        e.querySelector('a#endpoint')?.href.includes('/feed/trending'));
-
-      const swap = () => {
-        if (document.querySelector('[data-swapped="true"]')) return;
-        const shorts = [...document.querySelectorAll('ytd-guide-entry-renderer')].find(isShorts);
-        const trending = getTrendingEntry();
-        if (!shorts || !trending) return;
-
-        const [sP, tP, sN, tN] = [shorts.parentNode, trending.parentNode, shorts.nextSibling, trending.nextSibling];
-        sP.replaceChild(trending, shorts);
-        tP.insertBefore(shorts, tN);
-
-        shorts.dataset.swapped = trending.dataset.swapped = "true";
-      };
-
-      swap();
-      new MutationObserver(swap).observe(document.body, { childList: true, subtree: true });
-
-      // --- Restore animation only after swap is complete ---
-      const waitForDrawer = new MutationObserver((_, obs) => {
-        const drawer = document.querySelector('tp-yt-app-drawer#guide');
-        if (drawer) {
-          const contentContainer = drawer.querySelector('#contentContainer');
-          if (contentContainer) {
-            // Wait for the swap to complete (detect [data-swapped="true"])
-            const swapObserver = new MutationObserver(() => {
-              if (document.querySelector('[data-swapped="true"]')) {
-                swapObserver.disconnect();
-              }
-            });
-            swapObserver.observe(document.documentElement, { childList: true, subtree: true });
-            obs.disconnect();
+      let scheduled = false;
+      function swap() {
+        if (scheduled) return;
+        scheduled = true;
+        requestAnimationFrame(() => {
+          scheduled = false;
+          const entries = [...document.querySelectorAll('ytd-guide-entry-renderer')];
+          const shorts = entries.find(e => S.has(e.querySelector('a#endpoint svg path')?.getAttribute('d')));
+          const trending = entries.find(e => e.querySelector('a#endpoint')?.href.includes('/feed/trending'));
+          // Swap only if not already swapped
+          if (
+            shorts && trending &&
+            !shorts.hasAttribute('data-swapped') &&
+            !trending.hasAttribute('data-swapped') &&
+            shorts !== trending
+          ) {
+            const shortsNext = shorts.nextSibling;
+            const trendingNext = trending.nextSibling;
+            const shortsParent = shorts.parentNode;
+            const trendingParent = trending.parentNode;
+            shortsParent.insertBefore(trending, shortsNext);
+            trendingParent.insertBefore(shorts, trendingNext);
+            shorts.setAttribute('data-swapped', 'true');
+            trending.setAttribute('data-swapped', 'true');
           }
-        }
-      });
-      waitForDrawer.observe(document.documentElement, { childList: true, subtree: true });
+        });
+      }
 
+      const container = document.querySelector('ytd-guide-section-renderer') || document.body;
+      new MutationObserver(swap).observe(container, { childList: true, subtree: true });
+      swap();
     }
 
-    // --- SCRIPT 2: guide-persistent-and-visible ---
+    // --- LOGIC FOR PERSISTENT GUIDE MODE ---
     async function scriptPersistentGuide(app) {
-      // SVG path signatures for Shorts icons
+      // SVG path data for Shorts icons
       const SHORTS_PATHS = new Set([
         "m7.61 15.719.392-.22v-2.24l-.534-.228-.942-.404c-.869-.372-1.4-1.15-1.446-1.974-.047-.823.39-1.642 1.203-2.097h.001L15.13 3.59c1.231-.689 2.785-.27 3.466.833.652 1.058.313 2.452-.879 3.118l-1.327.743-.388.217v2.243l.53.227.942.404c.869.372 1.4 1.15 1.446 1.974.047.823-.39 1.642-1.203 2.097l-.002.001-8.845 4.964-.001.001c-1.231.688-2.784.269-3.465-.834-.652-1.058-.313-2.451.879-3.118l1.327-.742Zm1.993 6.002c-1.905 1.066-4.356.46-5.475-1.355-1.057-1.713-.548-3.89 1.117-5.025a4.14 4.14 0 01.305-.189l1.327-.742-.942-.404a4.055 4.055 0 01-.709-.391c-.963-.666-1.578-1.718-1.644-2.877-.08-1.422.679-2.77 1.968-3.49l8.847-4.966c1.905-1.066 4.356-.46 5.475 1.355 1.057 1.713.548 3.89-1.117 5.025a4.074 4.074 0 01-.305.19l-1.327.742.942.403c.253.109.49.24.709.392.963.666 1.578 1.717 1.644 2.876.08 1.423-.679 2.77-1.968 3.491l-8.847 4.965ZM10 14.567a.25.25 0 00.374.217l4.45-2.567a.25.25 0 000-.433l-4.45-2.567a.25.25 0 00-.374.216v5.134Z",
         "M18.45 8.851c1.904-1.066 2.541-3.4 1.422-5.214-1.119-1.814-3.57-2.42-5.475-1.355L5.55 7.247c-1.29.722-2.049 2.069-1.968 3.491.081 1.423.989 2.683 2.353 3.268l.942.404-1.327.742c-1.904 1.066-2.541 3.4-1.422 5.214 1.119 1.814 3.57 2.421 5.475 1.355l8.847-4.965c1.29-.722 2.049-2.068 1.968-3.49-.081-1.423-.989-2.684-2.353-3.269l-.942-.403 1.327-.743ZM10 14.567a.25.25 0 00.374.217l4.45-2.567a.25.25 0 000-.433l-4.45-2.567a.25.25 0 00-.374.216v5.134Z"
       ]);
 
-      // Utility: Find a guide entry by href substring
+      // Find a guide entry by href substring
       const findGuideEntry = (substr) =>
         Array.from(document.querySelectorAll('ytd-guide-entry-renderer')).find(el =>
           el.querySelector('a#endpoint')?.href.includes(substr)
         );
 
-      // Utility: Check if entry is Shorts
+      // Check if a guide entry is Shorts
       const isShorts = (el) => {
         const d = el.querySelector('a#endpoint svg path')?.getAttribute('d');
         return d && SHORTS_PATHS.has(d);
       };
 
-      // Swap Shorts and Trending in the main guide
+      // Swap Shorts and Trending in the persistent guide
       function swapGuideEntries() {
         if (document.querySelector('[data-swapped]')) return;
         const shorts = Array.from(document.querySelectorAll('ytd-guide-entry-renderer')).find(isShorts);
@@ -308,7 +329,7 @@
         shorts.dataset.swapped = trending.dataset.swapped = 1;
       }
 
-      // Get Trending info for mini-guide replacement
+      // Extract Trending info for mini-guide replacement
       function fetchTrendingInfo() {
         const el = Array.from(document.querySelectorAll('ytd-guide-entry-renderer a#endpoint'))
           .find(a => a.href.includes('/feed/trending'));
@@ -323,7 +344,7 @@
         } : null;
       }
 
-      // Replace Shorts in mini-guide with Trending info
+      // Replace Shorts in the mini-guide with Trending info
       function replaceMiniGuideShorts(trending) {
         const a = Array.from(document.querySelectorAll('ytd-mini-guide-entry-renderer a#endpoint'))
           .find(a => {
@@ -342,7 +363,7 @@
         a.closest('ytd-mini-guide-entry-renderer')?.setAttribute('data-replaced', 'true');
       }
 
-      // Wait for the guide button to be clicked (for mini-guide)
+      // Wait for the main guide button to be clicked (to trigger mini-guide)
       function waitForGuideClick() {
         return new Promise(res => {
           const btn = () => document.querySelector('#guide-button');
@@ -356,9 +377,9 @@
         });
       }
 
-      // --- Main logic ---
+      // --- Main persistent guide logic ---
 
-      // Swap main guide entries and observe for dynamic changes
+      // Swap Shorts/Trending and observe for changes
       swapGuideEntries();
       new MutationObserver(swapGuideEntries).observe(document.body, { childList: true, subtree: true });
 
@@ -379,7 +400,7 @@
       })();
     }
 
-    // --- MAIN: Choose script based on guide mode ---
+    // --- MAIN ENTRYPOINT: Run correct script by guide mode ---
     waitForYtdAppAttr().then(({mode, app}) => {
       if (mode === 'persistent') {
         scriptPersistentGuide(app);
@@ -387,14 +408,48 @@
         scriptMiniGuide(app);
       }
     });
+
+    // --- Add click handler for Trending in mini-guide ---
+    const paths = [
+      "M14 2 7.305 5.956C4.637 7.533 3 10.401 3 13.5c0 4.694 3.806 8.5 8.5 8.5s8.5-3.806 8.5-8.5V1l-6 4V2ZM9 15c0-1.226.693-2.346 1.789-2.894L15 10v5c0 1.657-1.343 3-3 3s-3-1.343-3-3Z",
+      "m14 2-1.5.886-5.195 3.07C4.637 7.533 3 10.401 3 13.5c0 4.694 3.806 8.5 8.5 8.5s8.5-3.806 8.5-8.5V1l-1.5 1-3 2L14 5V2ZM8.068 7.248l4.432-2.62v3.175l2.332-1.555L18.5 3.803V13.5c0 3.866-3.134 7-7 7s-7-3.134-7-7c0-2.568 1.357-4.946 3.568-6.252ZM9 15c0-1.226.693-2.346 1.789-2.894L15 10v5c0 1.657-1.343 3-3 3s-3-1.343-3-3Z"
+    ];
+
+    function addTrendingMiniGuideHandler() {
+      document.querySelectorAll("ytd-mini-guide-entry-renderer").forEach(e => {
+        if (e.dataset.trendingHandler) return; // Already handled
+        const found = Array.from(e.querySelectorAll('svg path')).some(
+          p => paths.includes(p.getAttribute('d'))
+        );
+        if (found) {
+          e.addEventListener('click', ev => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            // Try both open and closed drawer selectors for robustness
+            document.querySelector('tp-yt-app-drawer#guide a#endpoint[href^="/feed/trending"]')?.click();
+          }, true);
+          e.dataset.trendingHandler = "true";
+        }
+      });
+    }
+
+    // Observe for new mini-guide entries and add handler
+    const observer = new MutationObserver(addTrendingMiniGuideHandler);
+    observer.observe(document.body, {childList: true, subtree: true});
+    addTrendingMiniGuideHandler();
+
+    // No-op reference to ytdApp for completeness
+    const ytdApp = document.querySelector('ytd-app');
   }
 
-  // --- SCRIPT 2: Only for m.youtube.com ---
+  // --- MOBILE VERSION: Applies only to m.youtube.com ---
   if (location.hostname === 'm.youtube.com') {
+    // Inject CSS to hide/disable drawer and scrim
     const css=document.createElement('style');
     css.id='h';css.textContent=`div.drawer-layout.opened{transform:translateX(-100%)!important;transition:none!important;visibility:hidden!important;pointer-events:none!important;display:block!important;}ytw-scrim.ytWebScrimHost{display:none!important;pointer-events:none!important;transition:none!important;animation:none!important;}div.drawer-layout.opened,div.drawer-layout.opened *,ytw-scrim.ytWebScrimHost,ytw-scrim.ytWebScrimHost *{transition:none!important;animation:none!important;}`;
     document.head.appendChild(css);
 
+    // Hide the drawer, wait for Trending, then restore layout
     async function menu() {
       const save=e=>{if(!e.dataset.os)e.dataset.os=e.style.cssText||''};
       const restore=()=>{
@@ -451,6 +506,7 @@
       },300);
     }
 
+    // Swap Shorts/Trending in the mobile pivot bar
     async function mobileSwap(){
       const K='yt_trending_cache';
       let r=0,p=location.pathname,lO;
@@ -550,6 +606,7 @@
       new MutationObserver(t).observe(document,{childList:1,subtree:1});
     }
 
+    // Run menu and swap logic when DOM is ready
     if(document.readyState==='loading'){
       window.addEventListener('DOMContentLoaded',()=>{menu();mobileSwap()});
     } else {
