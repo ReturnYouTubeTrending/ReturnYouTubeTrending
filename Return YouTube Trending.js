@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Return YouTube Trending
-// @version      1.4
+// @version      1.5
 // @description  Replace Shorts with Trending
 // @match        *://*.youtube.com/*
 // @grant        none
@@ -10,10 +10,10 @@
 (function() {
   'use strict';
 
-  // ---- SCRIPT 1: Only for www.youtube.com ----
+  // --- SCRIPT 1: Only for www.youtube.com ---
   if (location.hostname === 'www.youtube.com') {
 
-    // Utility: Wait for selector
+    // Utility: Wait for a selector to appear in the DOM
     function waitFor(selector, root = document) {
       return new Promise(resolve => {
         const el = root.querySelector(selector);
@@ -29,7 +29,7 @@
       });
     }
 
-    // Utility: Wait for ytd-app and the relevant attribute
+    // Utility: Wait for ytd-app and a specific attribute
     async function waitForYtdAppAttr() {
       const app = await waitFor('ytd-app');
       return new Promise(resolve => {
@@ -52,9 +52,7 @@
 
     // --- SCRIPT 1: mini-guide-visible (not persistent) ---
     async function scriptMiniGuide(app) {
-      // --- Sidebar Toggle + Shorts → Trending replace + Swap Shorts/Trending mini-guide entries ---
-
-      // Utility: Wait for selector (already defined above as waitFor)
+      // Sidebar toggle, Shorts → Trending replace, and swap Shorts/Trending mini-guide entries
 
       // Wait for mini-guide to be visible
       const shouldRun = async () => {
@@ -73,28 +71,20 @@
         });
       };
 
-      // --- Force 200ms transitions to 0ms on tp-yt-app-drawer and children ---
-      const zeroDrawerTransition = el => {
-        const update = () => {
-          el.querySelectorAll('[style*="200ms"]').forEach(node => {
+      // Watch for the drawer to appear, then disable animation once
+      const observer = new MutationObserver((_, obs) => {
+        const drawer = document.querySelector('tp-yt-app-drawer#guide');
+        if (drawer) {
+          // Set transitionDuration to '0ms' for all nodes with '200ms'
+          drawer.querySelectorAll('[style*="200ms"]').forEach(node => {
             node.style.transitionDuration = '0ms';
           });
-        };
-        update();
-        new MutationObserver(update).observe(el, {
-          attributes: true,
-          subtree: true,
-          attributeFilter: ['style']
-        });
-      };
+          obs.disconnect();
+        }
+      });
+      observer.observe(document.documentElement, { childList: true, subtree: true });
 
-      const maybeZeroDrawer = async () => {
-        const drawer = await waitFor('tp-yt-app-drawer#guide');
-        if (drawer) zeroDrawerTransition(drawer);
-      };
-      maybeZeroDrawer();
-
-      // Open sidebar menu
+      // Open sidebar menu when mini-guide is visible
       const openMenu = async () => {
         await new Promise(resolve => {
           const check = () => {
@@ -120,20 +110,16 @@
         clickable.click();
       };
 
-      // Remove persistent guide attribute
+      // Remove persistent guide attribute if present (edit once, no observer)
       const removeGuidePersistent = () => {
-        const observer = new MutationObserver(() => {
-          const app = document.querySelector('ytd-app[guide-persistent-and-visible]');
-          if (app) {
-            app.removeAttribute('guide-persistent-and-visible');
-            app.setAttribute('mini-guide-visible', '');
-            observer.disconnect();
-          }
-        });
-        observer.observe(document.documentElement, { childList: true, subtree: true });
+        const app = document.querySelector('ytd-app[guide-persistent-and-visible]');
+        if (app) {
+          app.removeAttribute('guide-persistent-and-visible');
+          app.setAttribute('mini-guide-visible', '');
+        }
       };
 
-      // Hide guide drawer
+      // Hide guide drawer, then show it again after clicking the guide button
       const hideGuideDrawer = async () => {
         const guideDrawer = await waitFor('tp-yt-app-drawer#guide');
         guideDrawer.style.transform = 'translateX(-100%)';
@@ -152,7 +138,7 @@
         }
       };
 
-      // Fix guide attribute
+      // Fix guide attribute to ensure mini-guide is visible (edit once, no observer)
       const fixGuideAttribute = () => {
         const app = document.querySelector('ytd-app[guide-persistent-and-visible]');
         if (app) {
@@ -262,6 +248,26 @@
 
       swap();
       new MutationObserver(swap).observe(document.body, { childList: true, subtree: true });
+
+      // --- Restore animation only after swap is complete ---
+      const waitForDrawer = new MutationObserver((_, obs) => {
+        const drawer = document.querySelector('tp-yt-app-drawer#guide');
+        if (drawer) {
+          const contentContainer = drawer.querySelector('#contentContainer');
+          if (contentContainer) {
+            // Wait for the swap to complete (detect [data-swapped="true"])
+            const swapObserver = new MutationObserver(() => {
+              if (document.querySelector('[data-swapped="true"]')) {
+                swapObserver.disconnect();
+              }
+            });
+            swapObserver.observe(document.documentElement, { childList: true, subtree: true });
+            obs.disconnect();
+          }
+        }
+      });
+      waitForDrawer.observe(document.documentElement, { childList: true, subtree: true });
+
     }
 
     // --- SCRIPT 2: guide-persistent-and-visible ---
@@ -373,7 +379,7 @@
       })();
     }
 
-    // --- MAIN ---
+    // --- MAIN: Choose script based on guide mode ---
     waitForYtdAppAttr().then(({mode, app}) => {
       if (mode === 'persistent') {
         scriptPersistentGuide(app);
@@ -383,7 +389,7 @@
     });
   }
 
-  // ---- SCRIPT 2: Only for m.youtube.com ----
+  // --- SCRIPT 2: Only for m.youtube.com ---
   if (location.hostname === 'm.youtube.com') {
     const css=document.createElement('style');
     css.id='h';css.textContent=`div.drawer-layout.opened{transform:translateX(-100%)!important;transition:none!important;visibility:hidden!important;pointer-events:none!important;display:block!important;}ytw-scrim.ytWebScrimHost{display:none!important;pointer-events:none!important;transition:none!important;animation:none!important;}div.drawer-layout.opened,div.drawer-layout.opened *,ytw-scrim.ytWebScrimHost,ytw-scrim.ytWebScrimHost *{transition:none!important;animation:none!important;}`;
