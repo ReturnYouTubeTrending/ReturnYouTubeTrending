@@ -2,7 +2,7 @@
 
 An extension to replace Shorts tab with Trending. 
 
-Supports Chrome and Firefox. Developed with ChatGPT and Perplexity.
+Developed with ChatGPT and Perplexity.
 
 <img width="200" height="152" alt="0030" src="https://github.com/user-attachments/assets/cafb27fa-8178-4114-8c99-daafd764e303" />
 
