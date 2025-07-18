@@ -11,5 +11,5 @@ Developed with ChatGPT and Perplexity.
 |  |    App |
 |---|---|
 | **PC** | **Chrome:** [Chrome Web Store](https://chromewebstore.google.com/detail/return-youtube-trending/apcbkpnopnnjaegbhnmcimmnlmmbolai)<br>**Firefox:** [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/return-youtube-trending/)<br>**Safari:** Install [Userscripts](https://apps.apple.com/app/userscripts/id1463298887) and add [Return YouTube Trending.js](https://raw.githubusercontent.com/Dr-Sauce/ReturnYouTubeTrending/refs/heads/main/Return%20YouTube%20Trending.js), [YouTube Premium.js](https://raw.githubusercontent.com/Dr-Sauce/ReturnYouTubeTrending/refs/heads/main/YouTube%20Premium.js) |
-| **iOS** | Install [uYouPlus](https://github.com/qnblackcat/uYouPlus) with [AltStore](https://altstore.io/).<br>(Or [YTReExplore](https://www.ios-repo-updates.com/repository/poomsmart/package/com.ps.ytreexplore/) from Sileo on jailbroken devices) |
+| **iOS** | Install [uYouPlus](https://github.com/qnblackcat/uYouPlus) with [AltStore](https://altstore.io/).<br>(Or install [YTReExplore](https://www.ios-repo-updates.com/repository/poomsmart/package/com.ps.ytreexplore/) from Sileo on jailbroken devices) |
 | **Android** | Unsupported<br>(YouTube ReVanced doesn't support changing Shorts with Trending tab) |
