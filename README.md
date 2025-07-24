@@ -9,7 +9,7 @@ An extension to replace Shorts tab with Trending. Developed with ChatGPT and Per
 - October 2015: Google introduces Trending.
 - July 2018: YouTube rebrands Trending to Explore.
 - Late 2021: YouTube Shorts button replaces Explore button in navigation bar.
-- June 2025: Return YouTube Trending releases.
+- June 2025: [`Return YouTube Trending`](https://returnyoutubetrending.github.io/) releases.
 - July 2025: Google removes YouTube Trending button.
 
 # Install
