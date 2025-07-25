@@ -1,8 +1,9 @@
 # Return YouTube Trending
 
-An extension to replace Shorts tab with Trending. Developed with ChatGPT and Perplexity.
+- Replace Shorts tab with Trending.
+- Enable YouTube Premium Logo.
 
-<img width="200" height="152" alt="0030" src="https://github.com/user-attachments/assets/cafb27fa-8178-4114-8c99-daafd764e303" />
+![0001](https://github.com/user-attachments/assets/9502d734-2a7c-45f4-a218-66fbfaf6fd02)
 
 # Install
 |  |    App |
@@ -17,3 +18,8 @@ An extension to replace Shorts tab with Trending. Developed with ChatGPT and Per
 - May 2021: YouTube Shorts button replaces Explore button in navigation bar[.](https://support.google.com/youtube/thread/102762882/shorts-beta-u-s-expansion-important-updates-for-shorts-creators?hl=en&msgid=108706677)
 - June 2025: [`Return YouTube Trending`](https://returnyoutubetrending.github.io/) releases.
 - July 2025: YouTube removes YouTube Trending button[.](https://support.google.com/youtube/thread/356702168/changes-to-discovering-trending-content-on-youtube)
+
+# Translation
+Currently **Return YouTube Trending** supports 83 languages (all languages YouTube supports) in the backend and 2 languages (English and Korean) in the frontend. 
+
+If you'd like a language to be added please leave an [issue](https://github.com/Dr-Sauce/ReturnYouTubeTrending/issues/new/choose).
