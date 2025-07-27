@@ -15,7 +15,7 @@
 # History
 - December 2015: YouTube introduces Trending[.](https://blog.youtube/culture-and-trends/youtube-rewind-2015/)
 - July 2018: YouTube rebrands Trending to Explore[.](https://support.google.com/youtube/thread/33277848)
-- May 2021: YouTube Shorts button replaces Explore button in navigation bar[.](https://support.google.com/youtube/thread/102762882/shorts-beta-u-s-expansion-important-updates-for-shorts-creators?hl=en&msgid=108706677)
+- May 2021: YouTube Shorts replaces Explore in the navigation bar[.](https://support.google.com/youtube/thread/102762882/shorts-beta-u-s-expansion-important-updates-for-shorts-creators?hl=en&msgid=108706677)
 - June 2025: [`Return YouTube Trending`](https://returnyoutubetrending.github.io/) releases.
 - July 2025: YouTube removes YouTube Trending button[.](https://support.google.com/youtube/thread/356702168/changes-to-discovering-trending-content-on-youtube)
 
