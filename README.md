@@ -1,9 +1,15 @@
 # Return YouTube Trending
 
-- Replace Shorts tab with Trending.
+- ~~Replace Shorts tab with Trending.~~
 - Enable YouTube Premium Logo.
 
 ![0001](https://github.com/user-attachments/assets/9502d734-2a7c-45f4-a218-66fbfaf6fd02)
+
+# Notice
+
+On July 28, 2025, YouTube removed the Trending page. Due to that, Return YouTube Trending no longer works as intended. (Other than replacing the YouTube logo with the Premium logo) 
+
+The [Trending API](https://developers.google.com/youtube/v3/docs/videos/list) is alive which can be used for fixing the extension, but for now I have no plans to implement it in the extension. If anyone is interested in contributing, you are welcome to contact me.
 
 # Install
 |  |    App |
