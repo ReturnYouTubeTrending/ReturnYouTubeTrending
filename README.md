@@ -23,7 +23,7 @@ The [Trending API](https://developers.google.com/youtube/v3/docs/videos/list) is
 - July 2018: YouTube rebrands Trending to Explore[.](https://support.google.com/youtube/thread/33277848)
 - May 2021: YouTube Shorts replaces Explore in navigation bar[.](https://support.google.com/youtube/thread/102762882/shorts-beta-u-s-expansion-important-updates-for-shorts-creators?hl=en&msgid=108706677)
 - June 2025: [`Return YouTube Trending`](https://returnyoutubetrending.github.io/) releases.
-- July 23, 2025: YouTube removes YouTube the Trending button[.](https://support.google.com/youtube/thread/356702168/changes-to-discovering-trending-content-on-youtube)
+- July 23, 2025: YouTube removes the YouTube Trending button[.](https://support.google.com/youtube/thread/356702168/changes-to-discovering-trending-content-on-youtube)
 - July 28, 2025: YouTube removes the Trending page.
 
 # Translation
