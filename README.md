@@ -24,7 +24,7 @@ The [Trending API](https://developers.google.com/youtube/v3/docs/videos/list) is
 - May 2021: YouTube Shorts replaces Explore in navigation bar[.](https://support.google.com/youtube/thread/102762882/shorts-beta-u-s-expansion-important-updates-for-shorts-creators?hl=en&msgid=108706677)
 - June 2025: [`Return YouTube Trending`](https://returnyoutubetrending.github.io/) releases.
 - July 23, 2025: YouTube removes the YouTube Trending button[.](https://support.google.com/youtube/thread/356702168/changes-to-discovering-trending-content-on-youtube)
-- July 28, 2025: YouTube removes the Trending page.
+- July 28, 2025: YouTube removes the Trending webpage.
 
 # Translation
 Currently **Return YouTube Trending** supports 83 languages (all languages YouTube supports) in the backend and 2 languages (English and Korean) in the frontend. 
