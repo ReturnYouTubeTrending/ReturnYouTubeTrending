@@ -9,14 +9,14 @@
 
 On July 28, 2025, YouTube removed the Trending page. Due to that, Return YouTube Trending no longer works as intended. (Other than replacing the YouTube logo with the Premium logo) 
 
-The [Trending API](https://developers.google.com/youtube/v3/docs/videos/list) is alive which can be used for fixing the extension, but for now I have no plans to implement it to the extension. If anyone is interested in contributing, you are welcome to contact me.
+The [Trending API](https://developers.google.com/youtube/v3/docs/videos/list) is alive which can be used to fix the extension, but for now I have no plans for it. If anyone is interested in contributing, you are welcome to leave an [issue](https://github.com/ReturnYouTubeTrending/ReturnYouTubeTrending/issues/new).
 
 # Install
 |  |    App |
 |---|---|
-| **Web**<br><sub>PC, Mobile</sub> | **Chrome:** [Chrome Web Store](https://chromewebstore.google.com/detail/return-youtube-trending/apcbkpnopnnjaegbhnmcimmnlmmbolai)<br>**Firefox:** [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/return-youtube-trending/)<br>**Safari:** Install [Userscripts](https://apps.apple.com/app/userscripts/id1463298887) and add [Return YouTube Trending.js](https://raw.githubusercontent.com/Dr-Sauce/ReturnYouTubeTrending/refs/heads/main/Return%20YouTube%20Trending.js), [YouTube Premium.js](https://raw.githubusercontent.com/Dr-Sauce/ReturnYouTubeTrending/refs/heads/main/YouTube%20Premium.js) |
-| **iOS** | Install [uYouPlus](https://github.com/qnblackcat/uYouPlus) with [AltStore](https://altstore.io/) (Or [TrollStore](https://ios.cfw.guide/installing-trollstore/) on supported devices)<br>(Or install [YTReExplore](https://www.ios-repo-updates.com/repository/poomsmart/package/com.ps.ytreexplore/) from Sileo on jailbroken devices) |
-| **Android** | Unsupported<br>(YouTube ReVanced doesn't support changing Shorts with Trending tab) |
+| **Web**<br><sub>PC, Mobile</sub> | **Chrome:** [Chrome Web Store](https://chromewebstore.google.com/detail/return-youtube-trending/apcbkpnopnnjaegbhnmcimmnlmmbolai)<br>**Firefox:** [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/return-youtube-trending/)<br>**Safari:** Install [Userscripts](https://apps.apple.com/app/userscripts/id1463298887) and add ~~[Return YouTube Trending.js](https://raw.githubusercontent.com/Dr-Sauce/ReturnYouTubeTrending/refs/heads/main/Return%20YouTube%20Trending.js)~~, [YouTube Premium.js](https://raw.githubusercontent.com/Dr-Sauce/ReturnYouTubeTrending/refs/heads/main/YouTube%20Premium.js) |
+| **iOS** | Install [uYouPlus](https://github.com/qnblackcat/uYouPlus) with [AltStore](https://altstore.io/) (Or [TrollStore](https://ios.cfw.guide/installing-trollstore/) on supported devices)<br>(Or install [YTReExplore](https://www.ios-repo-updates.com/repository/poomsmart/package/com.ps.ytreexplore/) via Sileo on jailbroken devices) |
+| **Android** | Install [YouTube ReVanced](https://revanced.app/) and set home tab to `Trending` or `Explore`. |
 
 # History
 - December 2015: YouTube introduces Trending[.](https://blog.youtube/culture-and-trends/youtube-rewind-2015/)
