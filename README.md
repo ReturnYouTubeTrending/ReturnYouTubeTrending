@@ -7,7 +7,7 @@
 
 # Notice
 
-On July 28, 2025, YouTube removed the Trending page. Due to that, Return YouTube Trending no longer works. (Other than replacing the YouTube logo with the Premium logo) 
+On July 28, 2025, YouTube removed the Trending page, which made Return YouTube Trending lose its purpose. (Other than replacing the YouTube logo with the Premium logo) 
 
 The [Trending API](https://developers.google.com/youtube/v3/docs/videos/list) is alive which can be used to fix the extension, but for now I have no plans to integrate it. If anyone is interested in contributing, you are welcome to leave an [issue](https://github.com/ReturnYouTubeTrending/ReturnYouTubeTrending/issues/new).
 
