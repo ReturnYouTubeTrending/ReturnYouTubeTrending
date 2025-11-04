@@ -15,7 +15,7 @@ The [Trending API](https://developers.google.com/youtube/v3/docs/videos/list) is
 |  |    App |
 |---|---|
 | **Web**<br><sub>PC, Mobile</sub> | **Chrome:** [Chrome Web Store](https://chromewebstore.google.com/detail/return-youtube-trending/apcbkpnopnnjaegbhnmcimmnlmmbolai)<br>**Firefox:** [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/return-youtube-trending/)<br>**Safari:** Install [Userscripts](https://apps.apple.com/app/userscripts/id1463298887) and add ~~[Return YouTube Trending.js](https://raw.githubusercontent.com/Dr-Sauce/ReturnYouTubeTrending/refs/heads/main/Return%20YouTube%20Trending.js)~~, [YouTube Premium.js](https://raw.githubusercontent.com/Dr-Sauce/ReturnYouTubeTrending/refs/heads/main/YouTube%20Premium.js) |
-| **iOS** | Install [uYouPlus](https://github.com/qnblackcat/uYouPlus) with [AltStore](https://altstore.io/) (Or [TrollStore](https://ios.cfw.guide/installing-trollstore/) on supported devices)<br>(Or install [YTReExplore](https://www.ios-repo-updates.com/repository/poomsmart/package/com.ps.ytreexplore/) via Sileo on jailbroken devices) |
+| **iOS** | **iPhone:** Install [uYouPlus](https://github.com/qnblackcat/uYouPlus) with [AltStore](https://altstore.io/) (Or [TrollStore](https://ios.cfw.guide/installing-trollstore/) on supported devices)<br><br>**Jailbroken iPhones:** Install [YTReExplore](https://www.ios-repo-updates.com/repository/poomsmart/package/com.ps.ytreexplore/) via Sileo. |
 | **Android** | Install [YouTube ReVanced](https://revanced.app/) and set home tab to `Trending` or `Explore`. |
 
 # History
