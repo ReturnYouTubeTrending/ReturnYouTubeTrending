@@ -1,9 +1,7 @@
 # Return YouTube Trending
 
-- ~~Replace Shorts tab with Trending.~~
-- Enable YouTube Premium Logo.
+<img width="200" alt="Screenshot 2025-12-30 at 10 15 40 pm" src="https://github.com/user-attachments/assets/1b5f2792-9970-4dff-ae12-493e6c7a7346" />
 
-![0001](https://github.com/user-attachments/assets/9502d734-2a7c-45f4-a218-66fbfaf6fd02)
 
 # Notice
 
@@ -15,8 +13,8 @@ The [Trending API](https://developers.google.com/youtube/v3/docs/videos/list) is
 |  |    App |
 |---|---|
 | **Web**<br><sub>PC, Mobile</sub> | **Chrome:** [Chrome Web Store](https://chromewebstore.google.com/detail/return-youtube-trending/apcbkpnopnnjaegbhnmcimmnlmmbolai)<br>**Firefox:** [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/return-youtube-trending/)<br>**Safari:** Install [Userscripts](https://apps.apple.com/app/userscripts/id1463298887) and add ~~[Return YouTube Trending.js](https://raw.githubusercontent.com/Dr-Sauce/ReturnYouTubeTrending/refs/heads/main/Return%20YouTube%20Trending.js)~~, [YouTube Premium.js](https://raw.githubusercontent.com/Dr-Sauce/ReturnYouTubeTrending/refs/heads/main/YouTube%20Premium.js) |
-| **iOS** | **iPhone:** Install [uYouPlus](https://github.com/qnblackcat/uYouPlus) with [AltStore](https://altstore.io/) (Or [TrollStore](https://ios.cfw.guide/installing-trollstore/) on supported devices)<br><br>**Jailbroken iPhones:** Install [YTReExplore](https://www.ios-repo-updates.com/repository/poomsmart/package/com.ps.ytreexplore/) via Sileo. |
-| **Android** | Install [YouTube ReVanced](https://revanced.app/) and set home tab to `Trending` or `Explore`. |
+| **iOS** | Install [YTLite](https://github.com/dayanch96/YTLite) via Sileo. (Jailbreak required) |
+| **Android** | Install [YouTube ReVanced](https://revanced.app/). |
 
 # History
 - December 2015: YouTube introduces Trending[.](https://blog.youtube/culture-and-trends/youtube-rewind-2015/)
