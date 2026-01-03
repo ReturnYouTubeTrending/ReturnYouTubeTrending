@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         YouTube Premium
-// @version      1.10
+// @version      1.11
 // @description  Replace YouTube logo with Premium
 // @match        *://*.youtube.com/*
 // @grant        none
