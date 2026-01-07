@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         YouTube Premium
-// @version      1.12
-// @description  Enable YouTube Premium Logo 
-// @match        *://*.youtube.com/*
+// @version      1.13
+// @description  Enable YouTube Premium Logo
+// @match        *://www.youtube.com/*
 // @grant        none
 // ==/UserScript==
 
@@ -17,27 +17,36 @@
   const regex = /\bYouTube\b(?! Premium)/;
 
   const run = () => {
-    document.querySelectorAll('ytd-topbar-logo-renderer').forEach(el => {
-      // 1. Hide Yoodle, Show hidden div & country code
-      const y = el.querySelector('ytd-yoodle-renderer');
-      if (y) y.hidden = true;
-      el.querySelectorAll('div[hidden], #country-code').forEach(e => e.hidden = false);
+    const targets = document.querySelectorAll('ytd-topbar-logo-renderer, c3-icon.yt-spec-more-drawer-view-model__more-drawer-header-logo');
 
-      // 2. Swap Icon
-      const icon = el.querySelector('yt-icon#logo-icon');
+    targets.forEach(el => {
+      // 1. Hide doodle, country code
+      if (el.tagName.startsWith('YTD')) {
+        const y = el.querySelector('ytd-yoodle-renderer');
+        if (y) y.hidden = true;
+        el.querySelectorAll('div[hidden], #country-code').forEach(e => e.hidden = false);
+      }
+
+      // 2. Swap icon
+      const icon = el.matches('c3-icon') ? el : el.querySelector('yt-icon#logo-icon');
       if (icon && !icon.querySelector('[data-prem]')) icon.replaceChildren(premLogo.cloneNode(true));
 
-      // 3. Update Tooltip
-      const a = el.querySelector('a#logo');
+      // 3. Update tooltip
+      const a = el.closest('a') || el.querySelector('a#logo');
       if (a) {
         const t = (a.title || a.getAttribute('aria-label') || '').replace(regex, 'YouTube Premium');
-        if (t !== a.title) { a.title = t; a.setAttribute('aria-label', t); }
+        if (t && t !== a.title) { a.title = t; a.setAttribute('aria-label', t); }
       }
     });
   };
 
-  // Observe document.body
-  new MutationObserver(run).observe(document.body, {subtree: true, childList: true});
+  let frame;
+  const obs = new MutationObserver(() => {
+    if (frame) cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(run);
+  });
+
+  obs.observe(document.body, { subtree: true, childList: true });
   window.addEventListener('yt-navigate-finish', run);
   run();
 })();
